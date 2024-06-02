@@ -1,0 +1,13 @@
+Followed this guide to setup dotfiles repo/tracking:
+https://wiki.archlinux.org/title/Dotfiles
+
+Ran these commands to setup the repo:
+$ git init --bare ~/.dotfiles
+$ alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
+$ dotfiles config status.showUntrackedFiles no
+
+Run these commands to replicate on a new system:
+$ git clone --bare <git-repo-url> $HOME/.dotfiles
+$ alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
+$ dotfiles checkout
+$ dotfiles config --local status.showUntrackedFiles no

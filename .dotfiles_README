@@ -17,7 +17,8 @@ $ dotfiles config --local status.showUntrackedFiles no
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To add and push changes to the dotfiles repo:
-dt commit -am "change message here"
+dt add ./changed_file_name_here
+dt commit -m "change message here"
 dt push
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,4 +47,4 @@ To checkout these dotfiles onto a new machine:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To pull changes from the repo onto the current machine:
-> git pull
+> dt pull

@@ -15,3 +15,29 @@ $ dotfiles config --local status.showUntrackedFiles no
 To add and push changes to the dotfiles repo:
 dt commit -am "change message here"
 dt push
+
+
+To checkout these dotfiles onto a new machine:
+
+- First glone to a temp directory:
+1. git clone --separate-git-dir=$HOME/.dotfiles https://github.com/mgmourgos/dotfiles.git $HOME/dotfiles-tmp
+
+- Then copy the temp directory contents into ~/
+2. cp -a ~/dotfiles-tmp/. ~
+
+3. Restart shell to get bashrc aliases for "dt"
+
+- Run this to hide untracked files again:
+4. dotfiles config --local status.showUntrackedFiles no
+
+5. rm -rf dotfiles-tmp/
+
+- Install nvim package manager:
+6. Goto https://github.com/wbthomason/packer.nvim and install packer using:
+> git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+ ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+
+7. Open packer.lua, and shoutout ":so", then ":PackerSync"
+- Now packer plugins should be installed
+
+

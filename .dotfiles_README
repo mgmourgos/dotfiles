@@ -1,22 +1,26 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Followed this guide to setup dotfiles repo/tracking:
 https://wiki.archlinux.org/title/Dotfiles
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Ran these commands to setup the repo:
 $ git init --bare ~/.dotfiles
 $ alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 $ dotfiles config status.showUntrackedFiles no
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Run these commands to replicate on a new system:
 $ git clone --bare <git-repo-url> $HOME/.dotfiles
 $ alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 $ dotfiles checkout
 $ dotfiles config --local status.showUntrackedFiles no
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To add and push changes to the dotfiles repo:
 dt commit -am "change message here"
 dt push
 
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To checkout these dotfiles onto a new machine:
 
 - First glone to a temp directory:
@@ -40,4 +44,6 @@ To checkout these dotfiles onto a new machine:
 7. Open packer.lua, and shoutout ":so", then ":PackerSync"
 - Now packer plugins should be installed
 
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To pull changes from the repo onto the current machine:
+> git pull

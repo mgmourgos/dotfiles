@@ -11,3 +11,7 @@ $ git clone --bare <git-repo-url> $HOME/.dotfiles
 $ alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 $ dotfiles checkout
 $ dotfiles config --local status.showUntrackedFiles no
+
+To add and push changes to the dotfiles repo:
+dt commit -am "change message here"
+dt push

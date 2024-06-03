@@ -83,6 +83,12 @@ if [ "$color_prompt" = yes ]; then
 
     eval TEXT_COLOR=$'\001\e[30m\002' # The color of the text within the prompt
 
+    # If on an ssh connection, change the background color of u@h
+    if [ -n "$SSH_CLIENT" ]; then
+      BG_COLOR_ONE_TEXT=$'\001\e[31m\002'
+      BG_COLOR_ONE_BG=$'\001\e[41m\002' # The background color, applied to background
+    fi
+
     # The rounded corner beginning of the bash prompt
     eval ROUNDED_START=$'${BG_COLOR_ONE_TEXT}\ue0b6'
 

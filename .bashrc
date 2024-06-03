@@ -57,7 +57,42 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    # Original PS1 below:
+    # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    #
+    # This guide helped: https://linuxhint.com/bash-ps1-customization/
+    # https://www.nerdfonts.com/cheat-sheet
+    # Also, on nerd font cheat sheet, try searching "divider" or "triangle"
+    # \e[m will stop the background from going past the PS1
+    # I added a custom color scheme to Windows terminal, by adding the json schemes from:
+    #   https://github.com/catppuccin/windows-terminal
+    # I did this by pasting the color schemes into schemes at:
+    #   %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+    # To view the complete font, open the "Character Map" program in windows.
+    # `\[` and `\]` are called non-printing character delimiters, and surround areas of text which should
+    #   not be added to the character length of the bash prompt.
+    #   - `\001\` and `\002` can be used as a replacement of these delimiters, in variables.
+    # `eval` is used before some variables, to evaluate the value completely, this will
+    #   ensure that the sub-variable's area is correctly concatentated.
+
+    BG_COLOR_ONE_TEXT=$'\001\e[34m\002' # The background color, applied ot transition text
+    BG_COLOR_ONE_BG=$'\001\e[44m\002' # The background color, applied to background
+
+    BG_COLOR_TWO_TEXT=$'\001\e[35m\002' # The background color, applied ot transition text
+    BG_COLOR_TWO_BG=$'\001\e[45m\002' # The background color, applied to background
+
+    eval TEXT_COLOR=$'\001\e[30m\002' # The color of the text within the prompt
+
+    # The rounded corner beginning of the bash prompt
+    eval ROUNDED_START=$'${BG_COLOR_ONE_TEXT}\ue0b6'
+
+    # Transparent triangles transition
+    eval TRANSITION_ONE=$'\001\e[m\002${BG_COLOR_ONE_TEXT}\ue0b0${BG_COLOR_TWO_TEXT}\ue0D7\001\e[m\002${BG_COLOR_TWO_BG}'
+    # Ending Triangle
+    eval TRANSITION_END=$'\001\e[m\002${BG_COLOR_TWO_TEXT}\ue0b0'
+
+    #                                            username@hostname                         dir
+    PS1=$'${ROUNDED_START}${BG_COLOR_ONE_BG}${TEXT_COLOR}\u@\H ${TRANSITION_ONE}${TEXT_COLOR} \w ${TRANSITION_END}\[\e[m \]'
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi

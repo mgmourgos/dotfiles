@@ -48,3 +48,15 @@ To checkout these dotfiles onto a new machine:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To pull changes from the repo onto the current machine:
 > dt pull
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Windows setup - install a nerd font, in my case "InconsolataGo"
+1. Download the nerd font zip file
+2. Right click the .ttf file and click "install"
+3. In windows terminal, go to Settings > Ubuntu > Appearance > Font Face
+4. Set the newly added font to "InconsolataGo Nerd Font"
+
+This will allow the usage of speacial unicode characters for a fancy bash
+prompt which is set in the .bashrc
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

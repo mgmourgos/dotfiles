@@ -78,8 +78,8 @@ if [ "$color_prompt" = yes ]; then
     BG_COLOR_ONE_TEXT=$'\001\e[34m\002' # The background color, applied ot transition text
     BG_COLOR_ONE_BG=$'\001\e[44m\002' # The background color, applied to background
 
-    BG_COLOR_TWO_TEXT=$'\001\e[35m\002' # The background color, applied ot transition text
-    BG_COLOR_TWO_BG=$'\001\e[45m\002' # The background color, applied to background
+    BG_COLOR_TWO_TEXT=$'\001\e[33m\002' # The background color, applied ot transition text
+    BG_COLOR_TWO_BG=$'\001\e[43m\002' # The background color, applied to background
 
     eval TEXT_COLOR=$'\001\e[30m\002' # The color of the text within the prompt
 
@@ -98,7 +98,7 @@ if [ "$color_prompt" = yes ]; then
     eval TRANSITION_END=$'\001\e[m\002${BG_COLOR_TWO_TEXT}\ue0b0'
 
     #                                            username@hostname                         dir
-    PS1=$'${ROUNDED_START}${BG_COLOR_ONE_BG}${TEXT_COLOR}\u@\H ${TRANSITION_ONE}${TEXT_COLOR} \w ${TRANSITION_END}\[\e[m \]'
+    PS1=$'${ROUNDED_START}${BG_COLOR_ONE_BG}${TEXT_COLOR}\u@\h ${TRANSITION_ONE}${TEXT_COLOR} \w ${TRANSITION_END}\[\e[m \]'
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi

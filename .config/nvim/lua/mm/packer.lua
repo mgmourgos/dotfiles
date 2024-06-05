@@ -20,8 +20,8 @@ return require('packer').startup(function(use)
 --		vim.cmd('colorscheme rose-pine')
 --	end
 --  })
-
-  use { "catppuccin/nvim", as = "catppuccin" }
+-- use { "catppuccin/nvim", as = "catppuccin" }
+  use "rebelot/kanagawa.nvim"
 
   use {
     'ThePrimeagen/vim-be-good' 

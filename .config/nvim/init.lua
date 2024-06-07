@@ -76,28 +76,23 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
---  {"catppuccin/nvim",
---    lazy = false,
---    priority = 1000,
---    init = function ()
---      --vim.cmd.colorscheme "catppuccin-mocha"
---    end,
---  },
+  {
+    -- "catppuccin/nvim",
+    "rebelot/kanagawa.nvim",
+    lazy = false,
+    priority = 1000,
+    init = function ()
+      --vim.cmd.colorscheme "catppuccin-mocha"
+      vim.cmd.colorscheme "kanagawa"
+    end,
+  },
+
   "ThePrimeagen/vim-be-good",
 
   {
     "neovim/nvim-lspconfig",
     lazy = false,
- --    dependencies = {
- --      { "ms-jpq/coq_nvim", branch = "coq" },
- --      { "ms-jpq/coq.artifacts", branch = "artifacts" },
- --    },
- --    init = function()
- --      vim.g.coq_settings = {
-	-- auto_start = true, -- if you want to start COQ at startup
-	-- -- Your COQ settings here
- --      }
- --    end,
+    priority = 999,
   },
 
   { -- Autocompletion
@@ -171,8 +166,6 @@ require("lazy").setup({
     end
   },
 
-  "rebelot/kanagawa.nvim",
-
   -- TODO install ripgrep
   {
    'nvim-telescope/telescope.nvim', tag = '0.1.8',
@@ -193,6 +186,87 @@ require("lazy").setup({
     end,
     opts = {}
   },
+
+  {
+    'echasnovski/mini.nvim',
+    version = '*',
+    config = function()
+      require('mini.surround').setup()
+    end
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup{
+        sections = {
+          lualine_a = {
+            -- Show the relative filepath
+            {'filename',
+              path = 1
+            }
+          }
+        }
+      }
+    end,
+  },
+  {
+    'm4xshen/autoclose.nvim',
+    config = function()
+      require('autoclose').setup()
+    end,
+  },
+  {
+    'lewis6991/gitsigns.nvim',
+    config = function ()
+      require('gitsigns').setup{
+        on_attach = function(bufnr)
+          local gitsigns = require('gitsigns')
+
+          local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+          end
+
+          -- Navigation
+          map('n', ']c', function()
+            if vim.wo.diff then
+              vim.cmd.normal({']c', bang = true})
+            else
+              gitsigns.nav_hunk('next')
+            end
+          end, {desc = "Goto Next Hunk"})
+
+          map('n', '[c', function()
+            if vim.wo.diff then
+              vim.cmd.normal({'[c', bang = true})
+            else
+              gitsigns.nav_hunk('prev')
+            end
+          end, {desc = "Goto Prev Hunk"})
+
+          -- Actions
+          map('n', '<leader>hs', gitsigns.stage_hunk, {desc = "Stage Hunk"})
+          map('n', '<leader>hr', gitsigns.reset_hunk, {desc = "Reset Hunk"})
+          map('v', '<leader>hs', function() gitsigns.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+          map('v', '<leader>hr', function() gitsigns.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+          map('n', '<leader>hS', gitsigns.stage_buffer, {desc = "Stage Buffer"})
+          map('n', '<leader>hu', gitsigns.undo_stage_hunk, {desc = "Undo Stage Hunk"})
+          map('n', '<leader>hR', gitsigns.reset_buffer, {desc = "Reset Buffer"})
+          map('n', '<leader>hp', gitsigns.preview_hunk, {desc = "Preview Hunk"})
+          map('n', '<leader>hb', function() gitsigns.blame_line{full=true} end, {desc = "Blame line full"})
+          map('n', '<leader>tb', gitsigns.toggle_current_line_blame, {desc = "Toggle Current Line Blame"})
+          map('n', '<leader>hd', gitsigns.diffthis, {desc = "Diffthis"})
+          map('n', '<leader>hD', function() gitsigns.diffthis('~') end, {desc = "Diffthis ~"})
+          map('n', '<leader>td', gitsigns.toggle_deleted, {desc = "Toggle Deleted"})
+
+          -- Text object
+          map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+        end
+      }
+    end,
+  },
 }, opts)
 
 local on_attach = function(client, bufnr)
@@ -204,7 +278,7 @@ local on_attach = function(client, bufnr)
 
   -- Disable the lsp semantic hightlighting which was sometimes overwriting the
   -- initial hightlighting done by treesitter.
-  client.server_capabilities.semanticTokensProvider = nil
+  -- client.server_capabilities.semanticTokensProvider = nil
 
   -- Mappings.
   local opts = { buffer = bufnr, noremap = true, silent = true }
@@ -226,7 +300,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
   -- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
   --
-  vim.keymap.set('n', '<leader>o', "<cmd>:ClangdSwitchSourceHeader<CR>")
+  vim.keymap.set('n', '<leader>o', "<cmd>:ClangdSwitchSourceHeader<CR>", { desc = "Toggle Header/Source"})
 end
 
 require'lspconfig'.clangd.setup{
@@ -244,8 +318,6 @@ require'lspconfig'.clangd.setup{
   on_attach = on_attach,
 }
 
-vim.cmd.colorscheme "kanagawa"
-
 -- Bind "Neovim LSP Pickers" using telescope funcions which seems better than the neovim lsp defaults.
   -- Bind reference finder to cover advanced cases like inheritance
 vim.keymap.set('n', 'gl', "<cmd>:lua require'telescope.builtin'.lsp_implementations{}<CR>")
@@ -255,12 +327,12 @@ vim.keymap.set('n', 'gd', "<cmd>:lua require'telescope.builtin'.lsp_definitions{
 
 local builtin = require('telescope.builtin')
 -- Search for all files
-vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = "Find All Files"})
 
 -- Search only for files in the current git repo
-vim.keymap.set('n', '<C-p>', builtin.git_files, {})
+-- vim.keymap.set('n', '<C-p>', builtin.git_files, {}, { desc = "Find in Repo"})
+vim.keymap.set('n', '<leader>fg', builtin.git_files, { desc = "Find in Git Repo"})
+
 
 -- Search all files for a string
-vim.keymap.set('n', '<leader>fs', function()
-	builtin.grep_string({ search = vim.fn.input("Grep > ") });
-end)
+vim.keymap.set('n', '<leader>fs', function() builtin.grep_string({ search = vim.fn.input("Grep > ") }); end, { desc = "Search all files for string"})

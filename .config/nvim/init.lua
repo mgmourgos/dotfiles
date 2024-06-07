@@ -18,6 +18,7 @@ vim.opt.clipboard = 'unnamedplus'
 
 vim.keymap.set("n", "<leader>p", vim.cmd.Ex)
 
+-- Highlight a line and press ctrl+j/k to move them:
 vim.keymap.set("v", "<C-j>", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "<C-k>", ":m '<-2<CR>gv=gv")
 
@@ -27,11 +28,14 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
+-- Remap ctrl-j/k to be the same as d/u
+vim.keymap.set("n", "<C-j>", "<C-d>zz")
+vim.keymap.set("n", "<C-k>", "<C-u>zz")
+
 vim.keymap.set("i", "kj", "<Esc>")
 vim.keymap.set("i", "jk", "<Esc>")
 
 -- Format the entire file
---vim.keymap.set("n", "<leader>q", "gggqG<C-o>")
 vim.keymap.set("n", "<leader>q", "<cmd>:lua vim.lsp.buf.format()<CR>")
 
 -- Clear hightlight on search by pressing <Esc> in normal mode. 
@@ -46,6 +50,16 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	callback = function()
 		vim.highlight.on_yank()
 	end,
+})
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  desc = "Disable autometic comment insertion",
+  group = vim.api.nvim_create_augroup("AutoComment", {}),
+  callback = function ()
+    -- Disable auto commenting when opening a newline
+    -- see ":h fo-table"
+    vim.opt_local.formatoptions:remove({ "o", "r" })
+  end,
 })
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -71,7 +85,75 @@ require("lazy").setup({
 --  },
   "ThePrimeagen/vim-be-good",
 
-  "neovim/nvim-lspconfig",
+  {
+    "neovim/nvim-lspconfig",
+    lazy = false,
+ --    dependencies = {
+ --      { "ms-jpq/coq_nvim", branch = "coq" },
+ --      { "ms-jpq/coq.artifacts", branch = "artifacts" },
+ --    },
+ --    init = function()
+ --      vim.g.coq_settings = {
+	-- auto_start = true, -- if you want to start COQ at startup
+	-- -- Your COQ settings here
+ --      }
+ --    end,
+  },
+
+  { -- Autocompletion
+    'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
+    dependencies = {
+      -- Adds other completion capabilities.
+      --  nvim-cmp does not ship with all sources by default. They are split
+      --  into multiple repos for maintenance purposes.
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-path',
+    },
+    config = function()
+      -- See `:help cmp`
+      local cmp = require 'cmp'
+      cmp.setup {
+        completion = { completeopt = 'menu,menuone,noinsert' },
+
+        -- For an understanding of why these mappings were
+        -- chosen, you will need to read `:help ins-completion`
+        --
+        -- No, but seriously. Please read `:help ins-completion`, it is really good!
+        mapping = cmp.mapping.preset.insert {
+          -- Select the [n]ext item
+          ['<C-j>'] = cmp.mapping.select_next_item(),
+          -- Select the [p]revious item
+          ['<C-k>'] = cmp.mapping.select_prev_item(),
+
+          -- Scroll the documentation window [b]ack / [f]orward
+          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+
+          -- Accept ([y]es) the completion.
+          --  This will auto-import if your LSP supports it.
+          --  This will expand snippets if the LSP sent a snippet.
+          ['<C-Space>'] = cmp.mapping.confirm { select = true },
+
+          -- If you prefer more traditional completion keymaps,
+          -- you can uncomment the following lines
+          --['<CR>'] = cmp.mapping.confirm { select = true },
+          --['<Tab>'] = cmp.mapping.select_next_item(),
+          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+
+          -- Manually trigger a completion from nvim-cmp.
+          --  Generally you don't need this, because nvim-cmp will display
+          --  completions whenever it has completion options available.
+          ['<C-y>'] = cmp.mapping.complete {},
+
+        },
+        sources = {
+          { name = 'nvim_lsp' },
+          { name = 'path' },
+        },
+      }
+    end,
+  },
 
   {
     "nvim-treesitter/nvim-treesitter",
@@ -80,15 +162,37 @@ require("lazy").setup({
       local configs = require("nvim-treesitter.configs")
 
       configs.setup({
-          ensure_installed = { "cpp", "c", "lua", "vim", "vimdoc", "javascript", "html" },
-          sync_install = false,
-          highlight = { enable = true },
-          indent = { enable = true },  
-        })
+	ensure_installed = { "cpp", "c", "lua", "vim", "vimdoc", "javascript", "html" },
+	sync_install = false,
+	highlight = { enable = true },
+	-- This indent broke newline indenting in .h files:
+	-- indent = { enable = true },
+      })
     end
- }, 
+  },
 
   "rebelot/kanagawa.nvim",
+
+  -- TODO install ripgrep
+  {
+   'nvim-telescope/telescope.nvim', tag = '0.1.8',
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
+
+  'tpope/vim-sleuth',
+  {
+    'numToStr/Comment.nvim',
+    opts = {},
+  },
+
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    init = function()
+      vim.o.timeoutlen = 500
+    end,
+    opts = {}
+  },
 }, opts)
 
 local on_attach = function(client, bufnr)
@@ -105,10 +209,10 @@ local on_attach = function(client, bufnr)
   -- Mappings.
   local opts = { buffer = bufnr, noremap = true, silent = true }
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+  --vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+  --vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+  -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
   vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
   vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
   vim.keymap.set('n', '<space>wl', function()
@@ -116,17 +220,47 @@ local on_attach = function(client, bufnr)
   end, opts)
   vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
   vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
   vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
   vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
   vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
   -- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
-
-  -- 'gq{motion}' is how to auto format TODO format whole file?
+  --
+  vim.keymap.set('n', '<leader>o', "<cmd>:ClangdSwitchSourceHeader<CR>")
 end
 
-  require'lspconfig'.clangd.setup{
-  on_attach = on_attach
-  }
+require'lspconfig'.clangd.setup{
+  cmd = {
+    "clangd",
+    "--compile-commands-dir=/usr/local/google/home/mmourgos/chromium/src",
+    "--background-index",
+    --"--chrome-remote-index=true",
+    "-log=verbose",
+  },
+  config = function()
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+  end,
+  on_attach = on_attach,
+}
 
 vim.cmd.colorscheme "kanagawa"
+
+-- Bind "Neovim LSP Pickers" using telescope funcions which seems better than the neovim lsp defaults.
+  -- Bind reference finder to cover advanced cases like inheritance
+vim.keymap.set('n', 'gl', "<cmd>:lua require'telescope.builtin'.lsp_implementations{}<CR>")
+vim.keymap.set('n', 'gr', "<cmd>:lua require'telescope.builtin'.lsp_references{}<CR>")
+vim.keymap.set('n', 'gd', "<cmd>:lua require'telescope.builtin'.lsp_definitions{}<CR>")
+--vim.keymap.set("n", "", "<cmd>:lua vim.lsp.buf.format()<CR>")
+
+local builtin = require('telescope.builtin')
+-- Search for all files
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+
+-- Search only for files in the current git repo
+vim.keymap.set('n', '<C-p>', builtin.git_files, {})
+
+-- Search all files for a string
+vim.keymap.set('n', '<leader>fs', function()
+	builtin.grep_string({ search = vim.fn.input("Grep > ") });
+end)

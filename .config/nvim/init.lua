@@ -184,6 +184,13 @@ require("lazy").setup({
     init = function()
       vim.o.timeoutlen = 500
     end,
+    config = function()
+      local wk = require("which-key")
+      wk.register({
+        ["<leader>h"] = { name = "+Hunk" },
+        ["<leader>f"] = { name = "+Find" },
+      })
+    end,
     opts = {}
   },
 

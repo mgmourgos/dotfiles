@@ -159,3 +159,7 @@ fi
 
 alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 alias dt='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
+
+if [ -f ~/.bashrc_local ]; then
+    . ~/.bashrc_local
+fi

@@ -117,9 +117,9 @@ require("lazy").setup({
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
-          ['<C-j>'] = cmp.mapping.select_next_item(),
+          -- ['<C-j>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
-          ['<C-k>'] = cmp.mapping.select_prev_item(),
+          -- ['<C-k>'] = cmp.mapping.select_prev_item(),
 
           -- Scroll the documentation window [b]ack / [f]orward
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -128,13 +128,13 @@ require("lazy").setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-Space>'] = cmp.mapping.confirm { select = true },
+          -- ['<C-Space>'] = cmp.mapping.confirm { select = true },
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -184,13 +184,6 @@ require("lazy").setup({
     init = function()
       vim.o.timeoutlen = 500
     end,
-    config = function()
-      local wk = require("which-key")
-      wk.register({
-        ["<leader>h"] = { name = "+Hunk" },
-        ["<leader>f"] = { name = "+Find" },
-      })
-    end,
     opts = {}
   },
 
@@ -199,6 +192,7 @@ require("lazy").setup({
     version = '*',
     config = function()
       require('mini.surround').setup()
+      require('mini.cursorword').setup()
     end
   },
   {
@@ -274,8 +268,21 @@ require("lazy").setup({
       }
     end,
   },
+  { 'petertriho/nvim-scrollbar',
+    config = function()
+      require('scrollbar').setup()
+      require("scrollbar.handlers.gitsigns").setup()
+    end,
+  },
+  {
+    "karb94/neoscroll.nvim",
+    config = function ()
+      require('neoscroll').setup({})
+    end
+  },
 }, opts)
 
+local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 local on_attach = function(client, bufnr)
   local function buf_set_option(...)
     vim.api.nvim_buf_set_option(bufnr, ...)
@@ -308,21 +315,36 @@ local on_attach = function(client, bufnr)
   -- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
   --
   vim.keymap.set('n', '<leader>o', "<cmd>:ClangdSwitchSourceHeader<CR>", { desc = "Toggle Header/Source"})
+
+  -- Use tab and shift-tab to navigate to next/previous parameters in autocomplete snippets:
+  vim.keymap.set({ 'i', 's' }, '<Tab>', function()
+    if vim.snippet.active({ direction = 1 }) then
+      return '<cmd>lua vim.snippet.jump(1)<cr>'
+    else
+      return '<Tab>'
+    end
+  end, { expr = true })
+  vim.keymap.set({ 'i', 's' }, '<S-Tab>', function()
+    if vim.snippet.active({ direction = -1 }) then
+      return '<cmd>lua vim.snippet.jump(-1)<cr>'
+    else
+      return '<Tab>'
+    end
+  end, { expr = true })
 end
 
 require'lspconfig'.clangd.setup{
-  cmd = {
-    "clangd",
-    "--compile-commands-dir=/usr/local/google/home/mmourgos/chromium/src",
-    "--background-index",
-    --"--chrome-remote-index=true",
-    "-log=verbose",
+cmd = {
+"clangd",
+  "--compile-commands-dir=/usr/local/google/home/mmourgos/chromium/src",
+  "--background-index",
+  --"--chrome-remote-index=true",
+  "-log=verbose",
+  "--all-scopes-completion",
+  "--completion-style=detailed",
   },
-  config = function()
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-  end,
   on_attach = on_attach,
+  capabilities = lsp_capabilities
 }
 
 -- Bind "Neovim LSP Pickers" using telescope funcions which seems better than the neovim lsp defaults.
@@ -330,16 +352,26 @@ require'lspconfig'.clangd.setup{
 vim.keymap.set('n', 'gl', "<cmd>:lua require'telescope.builtin'.lsp_implementations{}<CR>")
 vim.keymap.set('n', 'gr', "<cmd>:lua require'telescope.builtin'.lsp_references{}<CR>")
 vim.keymap.set('n', 'gd', "<cmd>:lua require'telescope.builtin'.lsp_definitions{}<CR>")
---vim.keymap.set("n", "", "<cmd>:lua vim.lsp.buf.format()<CR>")
 
 local builtin = require('telescope.builtin')
 -- Search for all files
 vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = "Find All Files"})
 
 -- Search only for files in the current git repo
--- vim.keymap.set('n', '<C-p>', builtin.git_files, {}, { desc = "Find in Repo"})
-vim.keymap.set('n', '<leader>fg', builtin.git_files, { desc = "Find in Git Repo"})
-
+vim.keymap.set('n', '<leader>fg',
+  function ()
+    builtin.git_files({
+      file_ignore_patterns = {
+        "android_webview/",
+        "third_party/",
+        "ios/",
+      }
+    })
+  end, { desc = "Find in Git Repo"}
+)
 
 -- Search all files for a string
 vim.keymap.set('n', '<leader>fs', function() builtin.grep_string({ search = vim.fn.input("Grep > ") }); end, { desc = "Search all files for string"})
+
+-- ignore case for in file search
+vim.opt.ignorecase = true

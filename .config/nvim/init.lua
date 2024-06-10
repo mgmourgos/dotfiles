@@ -117,9 +117,9 @@ require("lazy").setup({
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
-          -- ['<C-j>'] = cmp.mapping.select_next_item(),
+          ['<C-n>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
-          -- ['<C-k>'] = cmp.mapping.select_prev_item(),
+          ['<C-N>'] = cmp.mapping.select_prev_item(),
 
           -- Scroll the documentation window [b]ack / [f]orward
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -128,13 +128,7 @@ require("lazy").setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          -- ['<C-Space>'] = cmp.mapping.confirm { select = true },
-
-          -- If you prefer more traditional completion keymaps,
-          -- you can uncomment the following lines
-          ['<CR>'] = cmp.mapping.confirm { select = true },
-          ['<Tab>'] = cmp.mapping.select_next_item(),
-          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<C-h>'] = cmp.mapping.confirm { select = true },
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -183,6 +177,13 @@ require("lazy").setup({
     event = "VeryLazy",
     init = function()
       vim.o.timeoutlen = 500
+    end,
+    config = function()
+      local wk = require("which-key")
+      wk.register({
+        ["<leader>h"] = { name = "+Hunk" },
+        ["<leader>f"] = { name = "+Find" },
+      })
     end,
     opts = {}
   },
@@ -274,12 +275,12 @@ require("lazy").setup({
       require("scrollbar.handlers.gitsigns").setup()
     end,
   },
-  {
-    "karb94/neoscroll.nvim",
-    config = function ()
-      require('neoscroll').setup({})
-    end
-  },
+  -- {
+  --   "karb94/neoscroll.nvim",
+  --   config = function ()
+  --     require('neoscroll').setup({})
+  --   end
+  -- },
 }, opts)
 
 local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
@@ -369,9 +370,9 @@ vim.keymap.set('n', '<leader>fg',
     })
   end, { desc = "Find in Git Repo"}
 )
-
--- Search all files for a string
 vim.keymap.set('n', '<leader>fs', function() builtin.grep_string({ search = vim.fn.input("Grep > ") }); end, { desc = "Search all files for string"})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = "Search buffers"})
+vim.keymap.set('n', '<leader>fr', builtin.registers, { desc = "Search registers"})
 
 -- ignore case for in file search
 vim.opt.ignorecase = true

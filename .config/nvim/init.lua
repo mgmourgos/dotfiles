@@ -35,10 +35,13 @@ vim.keymap.set("n", "<C-k>", "<C-u>zz")
 vim.keymap.set("i", "kj", "<Esc>")
 vim.keymap.set("i", "jk", "<Esc>")
 
-vim.keymap.set("n", "<leader>lf", "oLOG(ERROR) << \"wowee\" << __func__;<Esc>0")
-vim.keymap.set("n", "<leader>lF", "OLOG(ERROR) << \"wowee\" << __func__;<Esc>0")
-vim.keymap.set("n", "<leader>lc", "oLOG(ERROR) << \"wowee <Esc>pa\" << <Esc>pa;<Esc>0")
-vim.keymap.set("n", "<leader>lC", "OLOG(ERROR) << \"wowee <Esc>pa\" << <Esc>pa;<Esc>0")
+-- Map debug logging actions to <leader> + l.
+vim.keymap.set("n", "<leader>lF", "OLOG(ERROR) << \"wowee\" << __func__;<Esc>$", { desc = "Log Func Above"})
+vim.keymap.set("n", "<leader>lf", "oLOG(ERROR) << \"wowee\" << __func__;<Esc>$", { desc = "Log Func Below"})
+vim.keymap.set("n", "<leader>lV", "OLOG(ERROR) << \"wowee <Esc>pa\" << <Esc>pa;<Esc>$", { desc = "Log Variable Above"})
+vim.keymap.set("n", "<leader>lv", "oLOG(ERROR) << \"wowee <Esc>pa\" << <Esc>pa;<Esc>$", { desc = "Log Variable Below"})
+vim.keymap.set("n", "<leader>lP", "OLOG(ERROR) << \"wowee <Esc>pa\"a;<Esc>$", { desc = "Log Put Above"})
+vim.keymap.set("n", "<leader>lp", "oLOG(ERROR) << \"wowee <Esc>pa\";<Esc>$", { desc = "Log Put Below"})
 
 -- Format the entire file
 vim.keymap.set("n", "<leader>q", "<cmd>:lua vim.lsp.buf.format()<CR>")
@@ -187,6 +190,7 @@ require("lazy").setup({
       local wk = require("which-key")
       wk.register({
         ["<leader>h"] = { name = "+Hunk" },
+        ["<leader>l"] = { name = "+Log" },
         ["<leader>f"] = { name = "+Find" },
       })
     end,
